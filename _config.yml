@@ -115,7 +115,7 @@ analytics:
 author:
   name             : "bluuk"
   avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
-  bio              : "Security researcher"
+  bio              : "Security researcher at UNCC"
   location         : "Still on Earth"
   email            :
   links:
@@ -202,6 +202,7 @@ markdown_ext: "markdown,mkdown,mkdn,mkd,md"
 
 # Conversion
 markdown: kramdown
+remote_theme: mmistakes/minimal-mistakes
 highlighter: rouge
 lsi: false
 excerpt_separator: "\n\n"
