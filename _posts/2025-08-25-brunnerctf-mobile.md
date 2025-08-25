@@ -3,9 +3,11 @@ title: "BrunnerCTF 2025 - mobile"
 layout: single
 date: 2025-08-25
 categories: blog
+classes: wide
 ---
 
 In this CTF, I focussed on the three provided mobile challenges:
+
 
 # mobile_rivalcakes (easy)
 
