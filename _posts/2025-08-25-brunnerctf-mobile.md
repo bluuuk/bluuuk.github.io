@@ -425,37 +425,6 @@ The documentation for [`__vsnprintf_chk`](https://refspecs.linuxbase.org/LSB_4.1
 __vsnprintf_chk(s: arg1, maxlen: arg3, flag: 0, slen: arg2, format: arg4)
 ```
 
-In non-ASCII
-
-```mermaid
-graph TD
-
-    A[magic()] --> B[Writes into emptybuffer]
-
-    B --> C[char* x0_12 = malloc(__strlen_chk(&emptybuffer, -1) + 0x10)]
-    C --> D[x0_13 = __strlen_chk(&emptybuffer, -1)]
-
-    C --> E[sub_7a68ceb99c(
-        x0_12, 
-        -1, 
-        x0_13 + 0x10, 
-        "FLAG|%s", 
-        &emptybuffer, 
-        v0_1...v7_1
-    )]
-
-    E --> F[__vsnprintf_chk(
-        s: arg1, 
-        maxlen: arg3, 
-        flag: 0, 
-        slen: arg2, 
-        format: arg4
-    )]
-
-    D --> E
-    B --> D
-```
-
 When we look at the other arguments passed to `sub_7a68ceb99c`, they are all uninitialized. The only meaningful argument is `&emptybuffer`, which should then contain our flag! My plan was to call `magic()` and then simply read the `emptybuffer`. Instead of recreating the conditions to call `magic()`, I found an exported function that does the job for us in the binary:
 
 ```c
