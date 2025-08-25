@@ -5,6 +5,8 @@ date: 2025-08-14
 categories: blog
 ---
 
+CTF challenges concerned about untrusted MCP servers.
+
 # Ai-clippy
 
 Description: `You find a space station Terminal that seems abandoned.`
