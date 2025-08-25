@@ -5,6 +5,8 @@ date: 2025-08-25
 categories: blog
 ---
 
+In this CTF, I focussed on the three provided mobile challenges:
+
 # mobile_rivalcakes (easy)
 
 Given this challenge description and a file dump, we need to find a password and a location:
