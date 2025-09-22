@@ -354,7 +354,11 @@ for plaintexted_xor in canceled_keys[1:]:
 ```
 
 
-Therefore, we end up with $c_{File} \oplus c_{Echo} = p_0 \oplus p_1 || p_0 \oplus p_2\dots$. Everything now boils down to $p_0$ which acts as a 64 byte secret key! Furthermore, it is plaintext such that we likely will have a guessing game now! We can recover this (not by force tho)
+Therefore, we end up with 
+
+$$c_{File} \oplus c_{Echo} = p_0 \oplus p_1 || p_0 \oplus p_2 || \dots$$
+
+Everything now boils down to $p_0$ which acts as a 64 byte secret key! Furthermore, it is plaintext such that we likely will have a guessing game now! We can recover this (not by force tho).
 
 # Reconstructing messages
 
