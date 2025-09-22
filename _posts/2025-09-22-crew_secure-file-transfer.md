@@ -323,17 +323,19 @@ Why is this counter annoying? Because we cannot directly xor out both keystream:
 
 Also, the sever which we focus in here, has two counters. One for sending, one for receiving. Therefore, they have a mismatch of 1. I won't cover the sending part as it is essentially the same. So what does this all mean: 
 
-$$
+\[
 c_{File} = p_0 \oplus E_{k}(ibc=1) || p_1 \oplus E_{k}(ibc=2) || \dots \\
 c_{Echo} = p_0 \oplus E_{k}(ibc=0) || p_1 \oplus E_{k}(ibc=1) || \dots
-$$
+\]
 
 
 The key is always the same, but only `ibc` has a big impact here. Internally, the inital block counter `ibc` will be incremented in libsodium after $64$ bytes as `chacha` operates on $512$ bits. The function `chchcha` then modifies the respective block counter after encryption/decryption.
 
 However, the cool thing is that we have a chaining here such that a keystream is in two parts! What happens if we ignore the first block of $c_{Echo}$ and xor everything? 
 
-$c_{File} \oplus c_{Echo} = p_0 \oplus E_{k}(ibc=1) \oplus p_1 \oplus E_{k}(ibc=1) || p_2 \oplus E_{k}(ibc=2) \oplus p_2 \oplus E_{k}(ibc=2) \dots = p_0 \oplus p_1 || p_1 \oplus p_2\dots$
+\[
+c_{File} \oplus c_{Echo} = p_0 \oplus E_{k}(ibc=1) \oplus p_1 \oplus E_{k}(ibc=1) || p_2 \oplus E_{k}(ibc=2) \oplus p_2 \oplus E_{k}(ibc=2) \dots = p_0 \oplus p_1 || p_1 \oplus p_2\dots
+\]
 
 Therefore, we have a progression. To simplyfy the expression, we can rebase everything on $p_0$ with repeated xoring:
 
