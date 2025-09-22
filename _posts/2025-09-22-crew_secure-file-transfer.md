@@ -1,6 +1,6 @@
 ---
 title: "CrewCTF 2025 - misc/Secure File Transfer"
-layout: single
+layout: wide
 date: 2025-09-22
 categories: blog
 ---
@@ -17,6 +17,7 @@ categories: blog
   - [Recovering IHDR with IEND](#recovering-ihdr-with-iend)
   - [CRC32 calculations](#crc32-calculations)
   - [Recovering iTXt](#recovering-itxt)
+- [Mitigation](#mitigation)
 
 # Overview
 
@@ -322,9 +323,11 @@ Why is this counter annoying? Because we cannot directly xor out both keystream:
 
 Also, the sever which we focus in here, has two counters. One for sending, one for receiving. Therefore, they have a mismatch of 1. I won't cover the sending part as it is essentially the same. So what does this all mean: 
 
-$c_{File} = p_0 \oplus E_{k}(ibc=1) || p_1 \oplus E_{k}(ibc=2) || \dots$
+$$
+c_{File} = p_0 \oplus E_{k}(ibc=1) || p_1 \oplus E_{k}(ibc=2) || \dots \\
+c_{Echo} = p_0 \oplus E_{k}(ibc=0) || p_1 \oplus E_{k}(ibc=1) || \dots
+$$
 
-$c_{Echo} = p_0 \oplus E_{k}(ibc=0) || p_1 \oplus E_{k}(ibc=1) || \dots$
 
 The key is always the same, but only `ibc` has a big impact here. Internally, the inital block counter `ibc` will be incremented in libsodium after $64$ bytes as `chacha` operates on $512$ bits. The function `chchcha` then modifies the respective block counter after encryption/decryption.
 
@@ -584,3 +587,8 @@ Gotcha, this seems like made in `photoshop`. Putting the XML gibberish into gemi
 The final $p_0$ is `\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x07\x80\x00\x00\x048\x08\x02\x00\x00\x00g\xb1V\x14\x00\x00\x05\x1diTXtXML:com.adobe.xmp\x00\x00\x00\x00\x00<`. If we apply that to all relative to $p_0$ byte blocks, I end up with a **valid** PNG:
 
 ![flag](/assets/images/2025-09-22-crew_secure-file-transfer/flag.png)
+
+# Mitigation
+
+- Always generate a fresh nonce for the current connection
+- Have seperate keys for sending and receiving data
