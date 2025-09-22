@@ -1,7 +1,6 @@
 ---
 title: "CrewCTF 2025 - misc/Secure File Transfer"
 layout: splash
-classes: wide
 date: 2025-09-22
 categories: blog
 toc: true
@@ -576,7 +575,13 @@ Obviously, none of the keywords was right. After I uploaded the PNG to the PNG f
 
 Gotcha, this seems like made in `photoshop`. Putting the XML gibberish into gemini and chatty to ask for a right keyword type, gemini recommended `XML:com.adobe.xmp`. However, I still had to guess the last character `<` for XML start.
 
-The final $p_0$ is `\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x07\x80\x00\x00\x048\x08\x02\x00\x00\x00g\xb1V\x14\x00\x00\x05\x1diTXtXML:com.adobe.xmp\x00\x00\x00\x00\x00<`. If we apply that to all relative to $p_0$ byte blocks, I end up with a **valid** PNG:
+The final $p_0$ is 
+
+```
+\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x07\x80\x00\x00\x048\x08\x02\x00\x00\x00g\xb1V\x14\x00\x00\x05\x1diTXtXML:com.adobe.xmp\x00\x00\x00\x00\x00<
+```
+
+If we apply that to all relative to $p_0$ byte blocks, I end up with a **valid** PNG:
 
 ![flag](/assets/images/2025-09-22-crew_secure-file-transfer/flag.png)
 
