@@ -1,6 +1,7 @@
 ---
 title: "CrewCTF 2025 - misc/Secure File Transfer"
-layout: wide
+layout: single
+classes: wide
 date: 2025-09-22
 categories: blog
 ---
