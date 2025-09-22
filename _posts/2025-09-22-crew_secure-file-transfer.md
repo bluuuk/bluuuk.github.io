@@ -324,7 +324,7 @@ Why is this counter annoying? Because we cannot directly xor out both keystream:
 Also, the sever which we focus in here, has two counters. One for sending, one for receiving. Therefore, they have a mismatch of 1. I won't cover the sending part as it is essentially the same. So what does this all mean: 
 
 $
-c_{File} = p_0 \oplus E_{k}(ibc=1) || p_1 \oplus E_{k}(ibc=2) || \dots \\
+c_{File} = p_0 \oplus E_{k}(ibc=1) || p_1 \oplus E_{k}(ibc=2) || \dots
 c_{Echo} = p_0 \oplus E_{k}(ibc=0) || p_1 \oplus E_{k}(ibc=1) || \dots
 $
 
