@@ -1,24 +1,14 @@
 ---
 title: "CrewCTF 2025 - misc/Secure File Transfer"
 layout: single
-classes: wide
+classes: full
 date: 2025-09-22
 categories: blog
+toc: true
+toc_label: "Table of contents"
 ---
 
 > I vibe coded a file transfer program. Surely it is secure...
-
-- [Overview](#overview)
-- [Reversing the binary](#reversing-the-binary)
-  - [Cryptographic analysis](#cryptographic-analysis)
-    - [Vulnerability](#vulnerability)
-    - [Exploitation strategy](#exploitation-strategy)
-- [Reconstructing messages](#reconstructing-messages)
-- [Plaintext guessing game](#plaintext-guessing-game)
-  - [Recovering IHDR with IEND](#recovering-ihdr-with-iend)
-  - [CRC32 calculations](#crc32-calculations)
-  - [Recovering iTXt](#recovering-itxt)
-- [Mitigation](#mitigation)
 
 # Overview
 
