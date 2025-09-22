@@ -9,6 +9,8 @@ toc_label: "Table of contents"
 
 > I vibe coded a file transfer program. Surely it is secure...
 
+{% include toc %}
+
 # Overview
 
 We received a network capture and an elf called `sft`:
