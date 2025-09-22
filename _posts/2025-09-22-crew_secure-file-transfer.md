@@ -11,7 +11,7 @@ categories: blog
 - [Reversing the binary](#reversing-the-binary)
   - [Cryptographic analysis](#cryptographic-analysis)
     - [Vulnerability](#vulnerability)
-    - [Explotation strat](#explotation-strat)
+    - [Exploitation strategy](#exploitation-strategy)
 - [Reconstructing messages](#reconstructing-messages)
 - [Plaintext guessing game](#plaintext-guessing-game)
   - [Recovering IHDR with IEND](#recovering-ihdr-with-iend)
@@ -272,14 +272,14 @@ m and c can point to the same address (in-place encryption/decryption). If they 
 
 ### Vulnerability
 
-Alarms should ring when someones reuses a **nonce**! In our case, the nonce is set to the secret key for receiving data `clientRX`. In all subsequent calls to this function, the nonce is therefore always the same. Furthermore, the keys for receiving and transmitting data is **are the same**. The sender side however has the keys in different order to have a correct encryption scheme, i.e. both will encrypt with the same key but the key has a different name on each side.
+Alarms should ring when someone reuses a **nonce**! In our case, the nonce is set to the secret key for receiving data `clientRX`. In all subsequent calls to this function, the nonce is therefore always the same. Furthermore, the keys for receiving and transmitting data is **are the same**. The sender side however has the keys in different order to have a correct encryption scheme, i.e. both will encrypt with the same key but the key has a different name on each side.
 
 ```c
 chchcha(ciphertext: &plaintextFileLength, plaintext: &ciphertextFileLength, length: 8, 
         key: &clientTX, nonce: &clientRX, blockCounterIC: &blockCounterSending)
 ```
 
-### Explotation strat
+### Exploitation strategy
 
 However, to curb our enthusiasm, we also see the parameter `blockCounterIC` which modifies the counter which goes into the CHACHA construction to generate a keystream.
 
@@ -321,23 +321,23 @@ Why is this counter annoying? Because we cannot directly xor out both keystream:
 | Echo file (N bytes)  | Server | clientTX | clientRX | 0                   | ceil(N/64)          |
 | Transfer status (1B) | Client | clientTX | clientRX | 1 + ceil(N/64)      | 2 + ceil(N/64)      |
 
-Also, the sever which we focus in here, has two counters. One for sending, one for receiving. Therefore, they have a mismatch of 1. I won't cover the sending part as it is essentially the same. So what does this all mean: 
+Also, the server which we focus in here, has two counters. One for sending, one for receiving. Therefore, they have a mismatch of 1. I won't cover the sending part as it is essentially the same. So what does this all mean: 
 
-\[
+$
 c_{File} = p_0 \oplus E_{k}(ibc=1) || p_1 \oplus E_{k}(ibc=2) || \dots \\
 c_{Echo} = p_0 \oplus E_{k}(ibc=0) || p_1 \oplus E_{k}(ibc=1) || \dots
-\]
+$
 
 
 The key is always the same, but only `ibc` has a big impact here. Internally, the inital block counter `ibc` will be incremented in libsodium after $64$ bytes as `chacha` operates on $512$ bits. The function `chchcha` then modifies the respective block counter after encryption/decryption.
 
 However, the cool thing is that we have a chaining here such that a keystream is in two parts! What happens if we ignore the first block of $c_{Echo}$ and xor everything? 
 
-\[
+$
 c_{File} \oplus c_{Echo} = p_0 \oplus E_{k}(ibc=1) \oplus p_1 \oplus E_{k}(ibc=1) || p_2 \oplus E_{k}(ibc=2) \oplus p_2 \oplus E_{k}(ibc=2) \dots = p_0 \oplus p_1 || p_1 \oplus p_2\dots
-\]
+$
 
-Therefore, we have a progression. To simplyfy the expression, we can rebase everything on $p_0$ with repeated xoring:
+Therefore, we have a progression. To simplify the expression, we can rebase everything on $p_0$ with repeated xoring:
 
 ```python
 send = list(batched(messages["FileData"],n=64))
@@ -442,7 +442,7 @@ xor(messages["FileLength"],messages["EchoData"])
 > bytearray(b'a\xf4NG\r\n\x1a\n')
 ```
 
-Damn, thats likely a PNG! PNGs have a [fairly stable structure and a standard](https://www.w3.org/TR/png-3/). Throughout the challenge, I used the [PNG file chunk inspector](https://www.nayuki.io/page/png-file-chunk-inspector) which was a great help! A PNG consits of chunks, which have a length, some data and a CRC32 at the end. I wrote a small script to deduct what information is available:
+Damn, thats likely a PNG! PNGs have a [fairly stable structure and a standard](https://www.w3.org/TR/png-3/). Throughout the challenge, I used the [PNG file chunk inspector](https://www.nayuki.io/page/png-file-chunk-inspector) which was a great help! A PNG consists of chunks, which have a length, some data and a CRC32 at the end. I wrote a small script to deduct what information is available:
 
 ```python
 plaintext = (64) * ["?"]
@@ -534,11 +534,11 @@ After setting the fields and applying $p_0$ to every chunk of my relative to $p_
 
 ![our recovered header](/assets/images/2025-09-22-crew_secure-file-transfer/recovered_pt1.png)
 
-The start `iTX` looks suspicously like `iTXt` which is the text section in a PNG! The [standard defines](https://www.w3.org/TR/png-3/#11tEXt) some easy bytes. Howver, we need to guess some values, i.e. the `Keyword`
+The start `iTX` looks suspiciously like `iTXt` which is the text section in a PNG! The [standard defines](https://www.w3.org/TR/png-3/#11tEXt) some easy bytes. However, we need to guess some values, i.e. the `Keyword`
 
 ![iTXt header bytes](/assets/images/2025-09-22-crew_secure-file-transfer/itxtheader.png)
 
-I build a script to try every keyword from the standard. After, I saved every png hoping for the best
+I build a script to try every keyword from the standard. After, I saved every PNG hoping for the best
 
 ```python
 p0KnowniTXT = bytearray(p0KnownWithIHDR) # recovered header with the CRC32 derived values
@@ -578,7 +578,7 @@ for keyword in keywords:
     p0Keyword[start_itxt:start_itxt + len(keyword)] = keyword
 ```
 
-Obviously, none of the keywords was right. After I uploaded the png to the PNG file chunk inspector, I was greeted by `XML` in the `Text string` field:
+Obviously, none of the keywords was right. After I uploaded the PNG to the PNG file chunk inspector, I was greeted by `XML` in the `Text string` field:
 
 ```xml
 ?xpacket begin="﻿" id="W5M0MpCehiHzreSzUvB-mb JC[QhYVBpmetaxmlns:x="adobe:ns:meta/" x:xmptk="XMP Cor~y3/)_nO^JW"DF xmPns:rdf="http://www.w3.org/1999/02/22-rdf-h[O#gy4@GM\oXQdf:DeOcription rdf:about="" xmlns:xmp="http! 9u/xJ LABap/1./" xmlns:photoshop="http://ns.adobe.ctO'nnmAJV]_" xmlns:exif="http://ns.adobe.com/exif/1.0/9(w&!aC XGM"http//ns.adobe.com/tiff/1.0/" xmlns:xmpMM&I#rq#N LJ.com/Dap/1.0/mm/" xmlns:stEvt="http://ns.adt@DyentMTHBType/nesourceEvent#" xmp:CreateDate="2025-08679#Y^\PNI]@" Dmp:ModifyDate="2025-08-04T20:30:53+01:00"w~li,O4ate="025-08-04T20:30:53+01:00" photoshop:DaoGb%c`mKYMPUM@@8-04T 8:18:32+0100" photoshop:ColorMode="3" ;'nnmA_g;. rofilY="sRGB IEC61966-2.1" exif:PixelXDimensrMOj$0 QFeBEf:PixYlYDimension="1080" exif:ColorSpace="1"wrhH[-K/th="120" tiff:ImageLength="1080" tiff:RehMM"rhv@4 XJOz tiZf:XResolution="72/1" tiff:YResolution=9x7#'$ADO^C =:HistSry> <rdf:Seq> <rdf:li stEvo@4rhv@\F J d"  stEvt:softwareAgent="Affinity Designer;e(77CnOBEXMtEvt:Khen="2025-08-04T20:30:53+01:00"/> </rDcp'$ADO^JV=M:HisHory> </rdf:Description> </rdf:RDF> </x!ZL'kdmO_nS]^et enX="r"?>
