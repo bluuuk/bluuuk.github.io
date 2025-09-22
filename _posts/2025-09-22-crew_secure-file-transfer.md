@@ -330,7 +330,7 @@ The key is always the same, but only `ibc` has a big impact here. Internally, th
 
 However, the cool thing is that we have a chaining here such that a keystream is in two parts! What happens if we ignore the first block of $c_{Echo}$ and xor everything? 
 
-$$c_{File} \oplus c_{Echo} = p_0 \oplus E_{k}(ibc=1) \oplus p_1 \oplus E_{k}(ibc=1) || p_2 \oplus E_{k}(ibc=2) \oplus p_2 \oplus E_{k}(ibc=2) \dots = p_0 \oplus p_1 || p_1 \oplus p_2\dots$$
+$$\begin{align*}c_{File} \oplus c_{Echo} &= p_0 \oplus E_{k}(ibc=1) \oplus p_1 \oplus E_{k}(ibc=1) || p_2 \oplus E_{k}(ibc=2) \oplus p_2 \oplus E_{k}(ibc=2) \dots \\ &= p_0 \oplus p_1 || p_1 \oplus p_2\dots\end{align*}$$
 
 Therefore, we have a progression. To simplify the expression, we can rebase everything on $p_0$ with repeated xoring:
 
