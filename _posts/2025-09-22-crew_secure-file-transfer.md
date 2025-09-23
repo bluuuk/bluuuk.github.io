@@ -10,6 +10,8 @@ toc_label: "Table of contents"
 
 > I vibe coded a file transfer program. Surely it is secure...
 
+In the challenge *Secure File Transfer* I reversed the a binary, figuring out how it uses Libsodium to do key exchange and ChaCha/XChaCha for encryption. I noticed a big oops: the same nonce is reused and the same key is used both for sending and receiving, which breaks standard crypto hygiene, i.e. enabeling a Known-Plaintext Attack. Because of that, I was able to xor the ciphertext of a file with its echoed-back version and gradually undo parts of the plaintext (eventually understanding that it is a PNG, IHDR and IEND chunk, field recunstruction via CRC32, iTXt chunk etc.). In the end, I recovered enough to reconstruct a valid PNG (and thus the flag) and show what fixes are needed: fresh nonces per connection, and separate keys for send vs receive.
+
 # Overview
 
 We received a network capture and an elf called `sft`:
