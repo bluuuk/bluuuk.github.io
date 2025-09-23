@@ -285,7 +285,7 @@ int64_t* chchcha(int64_t ciphertext, int64_t plaintext, int64_t length, int64_t 
       return blockCounterIC
 ```
 
-The image below, taken from [wikipedia](https://en.wikipedia.org/wiki/ChaCha20-Poly1305), explains how `chacha20` works. It generates a keystream which is then xored to the plaintext to generate a ciphertext. We do not have any authentiation in our code here, so we can ignore the `AD`part in the diagram below:
+The image below, taken from [wikipedia](https://en.wikipedia.org/wiki/ChaCha20-Poly1305), explains how `chacha20` works. It generates a keystream which is then xored to the plaintext to generate a ciphertext --- while working on $64$ bytes block until the counter is increased. We do not have any authentiation in our code here, so we can ignore the `AD`part in the diagram below:
 
 ![chacha inner working](/assets/images/2025-09-22-crew_secure-file-transfer/xchacha.png)
 
@@ -593,4 +593,4 @@ If we apply that to all relative to $p_0$ byte blocks, I end up with a **valid**
 - Always generate a fresh nonce for the current connection
 - Have seperate keys for sending and receiving data
 
-Disclaimer: LLM were used to generate graphics, proof read, and write a summary draft.
+Disclaimer: LLMs were used to generate graphics, proof read, and write a summary draft.
