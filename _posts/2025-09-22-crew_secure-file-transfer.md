@@ -592,3 +592,5 @@ If we apply that to all relative to $p_0$ byte blocks, I end up with a **valid**
 
 - Always generate a fresh nonce for the current connection
 - Have seperate keys for sending and receiving data
+
+Disclaimer: LLM were used to generate graphics, proof read, and write a summary draft.
