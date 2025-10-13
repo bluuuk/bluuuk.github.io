@@ -62,9 +62,9 @@ Furthermore, the class `PreferenceConfig` and thus `BeverageConfig` due to inher
 Below is a small playground I created if you want to try it on your own first. 
 
 <iframe
-  src="https://bluuuk.github.io/blog-jupyterlite/lab/index.html?path=/openECSC-playground.ipynb"
+  src="https://bluuuk.github.io/blog-jupyterlite/lab/index.html?path=/attr.ipynb"
   width="100%"
-  height="800px">
+  height="1000px">
 </iframe>
 
 
