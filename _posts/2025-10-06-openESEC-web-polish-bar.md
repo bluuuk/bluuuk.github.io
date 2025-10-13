@@ -12,9 +12,113 @@ toc_label: "Table of contents"
 
 > This Web Application was made to adapt to polish (drinking) culture :3
 
-## Primitves
+## Setup
 
-We have http endpoint to register which in turn we need to aquire a valid session. Afterwards, we have the endpoints `config`,`empty` and `beverage` which I mapped to the methods below in the class `BeverageConfig` and `PreferenceConfig`.
+We have a frontend serving some `Jinja` templates that has some http endpoints we can use to ~~get hella drunk~~ understand what the polish bar has to offer. All endpoint endpoints somewhat modify the `BeverageConfig` of our account. There is an admin account that has the flag:
+
+```py
+app = FastAPI()
+templates = Jinja2Templates(directory="templates")
+sessions = {}
+
+def admin_session_setup():
+    session_id = str(uuid.uuid4())
+
+    sessions[session_id] = {
+        'username': 'admin',
+        'password': str(os.urandom(10).hex()),
+        'config': BeverageConfig(os.getenv('FLAG', 'openECSC{TEST_FLAG}'))
+    }
+
+admin_session_setup()
+
+
+@app.get("/")
+...
+
+@app.get("/register")
+...
+
+@app.post("/register")
+async def post_register(request: Request, username: str = Form(...), password: str = Form(...)):
+
+    new_session_id = str(uuid.uuid4())
+
+    sessions[new_session_id] = { 'username': username, 'password': password, 'config': BeverageConfig(None) }
+
+    response = RedirectResponse(url="/profile", status_code=303)
+    response.set_cookie(key="session", value=new_session_id, httponly=True)
+    return response
+
+
+@app.get("/profile")
+async def get_profile(request: Request):
+
+    session_id = request.cookies.get('session')
+
+    if session_id in sessions:
+        return templates.TemplateResponse("profile.html", {
+            "request": request, 
+            "username": sessions[session_id]['username'],
+            "config": sessions[session_id]['config'].get_config()
+        })
+
+    return RedirectResponse(url="/register", status_code=303)
+
+
+@app.post("/config")
+async def update_config(request: Request, config: str = Form(...), value: str = Form(...)):
+
+    session_id = request.cookies.get('session')
+
+    if session_id in sessions:
+        err = sessions[session_id]['config'].update_property(config, value)
+
+        return templates.TemplateResponse("profile.html", {
+            "request": request, 
+            "username": sessions[session_id]['username'],
+            "config": sessions[session_id]['config'].get_config(),
+            "error": 'Beverage is not in your shelf!' if err else ''
+        })
+
+    return RedirectResponse(url="/register", status_code=303)
+
+
+@app.post("/beverage")
+async def update_config(request: Request, beverage: str = Form(...)):
+
+    session_id = request.cookies.get('session')
+
+    if session_id in sessions:
+        sessions[session_id]['config'].add_beverage(beverage)
+
+        return templates.TemplateResponse("profile.html", {
+            "request": request, 
+            "username": sessions[session_id]['username'],
+            "config": sessions[session_id]['config'].get_config()
+        })
+
+    return RedirectResponse(url="/register", status_code=303)
+
+
+@app.post("/empty")
+async def update_config(request: Request):
+
+    session_id = request.cookies.get('session')
+
+    if session_id in sessions:
+        sessions[session_id]['config'].empty_alcohol_shelf()
+
+        return templates.TemplateResponse("profile.html", {
+            "request": request, 
+            "username": sessions[session_id]['username'],
+            "config": sessions[session_id]['config'].get_config()
+        })
+
+    return RedirectResponse(url="/register", status_code=303)
+```
+
+The http endpoint to `register` is pretty important to obtain a session. Afterwards, we have the endpoints `config`,`empty` and `beverage` which I mapped to the methods below in the class `BeverageConfig` and `PreferenceConfig`.
 
 ```py
     def get_property(self, val):
@@ -59,7 +163,7 @@ Furthermore, the class `PreferenceConfig` and thus `BeverageConfig` due to inher
 
 ## Python refresher on instance and objects vars
 
-Below is a small playground I created if you want to try it on your own first. 
+Below is a small playground I created if you want to try it on your own first. At the end, I included the challenge classes such that you can play around to try to solve this ctf on your own.
 
 <iframe
   src="https://bluuuk.github.io/blog-jupyterlite/lab/index.html?path=/openECSC-playground.ipynb"
@@ -68,33 +172,13 @@ Below is a small playground I created if you want to try it on your own first.
   height="1000px">
 </iframe>
 
-<script type="module">
-  const iframe = document.getElementById('jlite');
-
-  function onReadyThenHideAndOpen() {
-    const win = iframe.contentWindow;
-    if (!win || !win.jupyterapp) {
-      setTimeout(onReadyThenHideAndOpen, 200);
-      return;
-    }
-
-    // First hide the left sidebar
-    win.jupyterapp.commands.execute('application:toggle-left-area')
-      .catch(err => console.warn('toggle-left-area failed', err));
-
-    // Then open the notebook
-    win.jupyterapp.commands.execute('docmanager:open', {
-      path: '/openECSC-playground.ipynb'
-    }).catch(e => console.error('Error opening notebook:', e));
-  }
-
-  iframe.addEventListener('load', () => {
-    onReadyThenHideAndOpen();
-  });
-</script>
-
 ## Intuition
 
+<details>
+  <summary>Click to reveal hint</summary>
+
+  Here is the hidden hint. You can write **Markdown** here too.
+</details>
 
 ## Step by step guide
 
@@ -109,7 +193,6 @@ session = requests.Session()
 base = "https://3a454160-13f7-4fdc-beaf-ea41d11839cb.openec.sc:1337"
 
 session.post( f"{base}/register", data={"username":"admin","password":"lol"})
-session.post(f"{base}/empty")
 session.post(f"{base}/config",data={"config":"alcohol_shelf","value":"_all_instances"})
 session.post(f"{base}/empty")
 print(session.post(f"{base}/profile"))
