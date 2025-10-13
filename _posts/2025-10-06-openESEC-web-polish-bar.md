@@ -63,8 +63,8 @@ Below is a small playground I created if you want to try it on your own first.
 
 <iframe
   src="https://bluuuk.github.io/blog-jupyterlite/lab/index.html"
-  width="80%"
-  height="600px">
+  width="100%"
+  height="800px">
 </iframe>
 
 
