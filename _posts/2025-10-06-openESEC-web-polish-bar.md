@@ -63,6 +63,7 @@ Below is a small playground I created if you want to try it on your own first.
 
 <iframe
   src="https://bluuuk.github.io/blog-jupyterlite/lab/index.html?path=/openECSC-playground.ipynb"
+  id="jlite"
   width="100%"
   height="1000px">
 </iframe>
@@ -83,7 +84,7 @@ Below is a small playground I created if you want to try it on your own first.
 
     // Then open the notebook
     win.jupyterapp.commands.execute('docmanager:open', {
-      path: 'content/openECSC-playground.ipynb'
+      path: '/openECSC-playground.ipynb'
     }).catch(e => console.error('Error opening notebook:', e));
   }
 
