@@ -67,6 +67,30 @@ Below is a small playground I created if you want to try it on your own first.
   height="1000px">
 </iframe>
 
+<script type="module">
+  const iframe = document.getElementById('jlite');
+
+  function onReadyThenHideAndOpen() {
+    const win = iframe.contentWindow;
+    if (!win || !win.jupyterapp) {
+      setTimeout(onReadyThenHideAndOpen, 200);
+      return;
+    }
+
+    // First hide the left sidebar
+    win.jupyterapp.commands.execute('application:toggle-left-area')
+      .catch(err => console.warn('toggle-left-area failed', err));
+
+    // Then open the notebook
+    win.jupyterapp.commands.execute('docmanager:open', {
+      path: 'content/openECSC-playground.ipynb'
+    }).catch(e => console.error('Error opening notebook:', e));
+  }
+
+  iframe.addEventListener('load', () => {
+    onReadyThenHideAndOpen();
+  });
+</script>
 
 ## Intuition
 
