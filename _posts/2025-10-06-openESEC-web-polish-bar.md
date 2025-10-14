@@ -161,10 +161,28 @@ Below is a small playground I created if you want to try it on your own first. A
 
 <iframe
   src="https://bluuuk.github.io/blog-jupyterlite/lab/index.html?path=/openECSC-playground.ipynb"
+  id="jupyterlite"
   width="100%"
   height="1000px"
   tabindex="-1">
 </iframe>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    var ifr = document.getElementById("jupyterlite");
+    // hide until loaded
+    ifr.style.visibility = "hidden";
+    ifr.addEventListener("load", function() {
+      // delay a bit (if needed) to allow any focus inside to fire
+      setTimeout(function() {
+        ifr.style.visibility = "visible";
+        // shift focus elsewhere
+        document.body.focus();
+        // or you can focus some specific non-iframe element
+      }, 50);
+    });
+  });
+</script>
 
 ## Intuition
 
