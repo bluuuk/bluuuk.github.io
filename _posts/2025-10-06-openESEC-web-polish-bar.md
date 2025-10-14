@@ -168,20 +168,22 @@ Below is a small playground I created if you want to try it on your own first. A
 </iframe>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    var ifr = document.getElementById("jupyterlite");
-    // hide until loaded
-    ifr.style.visibility = "hidden";
-    ifr.addEventListener("load", function() {
-      // delay a bit (if needed) to allow any focus inside to fire
-      setTimeout(function() {
-        ifr.style.visibility = "visible";
-        // shift focus elsewhere
-        document.body.focus();
-        // or you can focus some specific non-iframe element
-      }, 50);
-    });
+document.addEventListener("DOMContentLoaded", () => {
+  const ifr = document.getElementById("jupyterlite");
+  const scrollPos = { x: window.scrollX, y: window.scrollY };
+
+  ifr.addEventListener("load", () => {
+    // small delay to let internal focus/scroll run
+    setTimeout(() => {
+      // restore parent scroll
+      window.scrollTo(scrollPos.x, scrollPos.y);
+      // reveal iframe
+      ifr.style.visibility = "visible";
+      // shift focus away
+      document.body.focus();
+    }, 50);
   });
+});
 </script>
 
 ## Intuition
