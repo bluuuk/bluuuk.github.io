@@ -181,7 +181,7 @@ The `empty_alcohol_shelf` of the class `PreferenceConfig` reduces a list to its 
 
 # The Detective
 
-Below is a small playground I created if you want to try it on your own first. If you are not familiar with the special methods `getattr`, `setattr`, and `hasattr`---I've got you covered! At the end, I included the challenge classes so that you can play around and try to solve this CTF on your own. You can use the [hints](#intuition).
+Below is a small playground I created if you want to try it on your own first. If you are not familiar with the special methods `getattr`, `setattr`, and `hasattr`---I've got you covered! At the end, I included the challenge classes so that you can play around and try to solve this CTF on your own. You can use the [hints](#the-evidence).
 
 <iframe
   src="https://bluuuk.github.io/blog-jupyterlite/lab/index.html?path=/openECSC-playground.ipynb"
