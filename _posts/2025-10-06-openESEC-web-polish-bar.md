@@ -215,6 +215,8 @@ B.empty_alcohol_shelf()
 B.get_config()
 ```
 
+![alt text](image.png)
+
 ## Final Solve
 
 We use an `Session` which automatically glues cookie to subsequent http request once they set - here its the `session` cookie:
