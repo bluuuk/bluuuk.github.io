@@ -164,19 +164,23 @@ Below is a small playground I created if you want to try it on your own first. A
   id="jupyterlite"
   width="100%"
   height="1000px"
-  style="position:absolute; top:-9999px; visibility:hidden;"
   tabindex="-1">
 </iframe>
 
 <script>
-const ifr = document.getElementById("jupyterlite");
-ifr.addEventListener("load", () => {
-  // After load & internal focus likely done
+const origScrollTo = window.scrollTo;
+
+window.scrollTo = function(x, y) {
+  // Optionally, we can filter / deny certain calls,
+  // e.g. if y isn't zero, or only allow calls from certain contexts.
+  // For now, do nothing (suppress)
+};
+
+// After iframe has loaded (or after appropriate delay), restore it:
+iframe.addEventListener("load", () => {
   setTimeout(() => {
-    ifr.style.position = "";
-    ifr.style.top = "";
-    ifr.style.visibility = "visible";
-  }, 100);
+    window.scrollTo = origScrollTo;
+  }, 200);
 });
 </script>
 
