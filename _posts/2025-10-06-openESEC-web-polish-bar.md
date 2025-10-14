@@ -163,7 +163,6 @@ Below is a small playground I created if you want to try it on your own first. A
 
 <iframe
   src="https://bluuuk.github.io/blog-jupyterlite/lab/index.html?path=/openECSC-playground.ipynb"
-  id="jlite"
   width="100%"
   height="1000px">
 </iframe>
@@ -172,36 +171,59 @@ Below is a small playground I created if you want to try it on your own first. A
 
 Below, I collected my first sight intuitions. Do not scroll to far, otherwise you will see the solution. Click as you like:
 
-<details>
-  <summary>Hint $1)$</summary>
-  Overall, the class `PreferenceConfig` and thus `BeverageConfig` due to inheritance have one interesting class variable `_all_instances`. The `__init__` for `PreferenceConfig` appends every newly created object to that class as long it is inherited from `PreferenceConfig`. 
-</details>
+{% capture hint1 %}
+Overall, the class `PreferenceConfig` and thus `BeverageConfig` due to inheritance have one interesting class variable `_all_instances`. The `__init__` for `PreferenceConfig` appends every newly created object to that class as long it is inherited from `PreferenceConfig`.
+{% endcapture %}
 
 <details>
-  <summary>Hint $2)$</summary>
-  The first element of `_all_instances` is always **admin** `BeverageConfig`. Therefore, if we register to create our own session, our object will be `_all_instances[1]`
+  <summary>Hint $1$)</summary>
+  {{ hint1 | markdownify }}
 </details>
+
+{% capture hint2 %}
+The first element of `_all_instances` is always **admin** `BeverageConfig`. Therefore, if we register to create our own session, our object will be `_all_instances[1]`.
+{% endcapture %}
 
 <details>
-  <summary>Hint $3)$</summary>
-  We can use `/config` to essentially do `setattr(self,"{key}",get_property(self,"{value}"))` where we control `{key}` and `{value}`
+  <summary>Hint $2$)</summary>
+  {{ hint2 | markdownify }}
 </details>
+
+{% capture hint3 %}
+We can use `/config` to essentially do `setattr(self,"{key}",get_property(self,"{value}"))` where we control `{key}` and `{value}`.
+{% endcapture %}
 
 <details>
-  <summary>Hint $4)$</summary>
-  With Hint $4$ in mind, we set `alcohol_shelf` to `_all_instances`. Now, `alcohol_shelf` is not of type `AlcoholShelf` anymore - its merly just a list.
+  <summary>Hint $3$)</summary>
+  {{ hint3 | markdownify }}
 </details>
+
+{% capture hint4 %}
+With Hint $4$ in mind, we set `alcohol_shelf` to `_all_instances`. Now, `alcohol_shelf` is not of type `AlcoholShelf` anymore — it's merely just a list.
+{% endcapture %}
 
 <details>
-  <summary>Hint $5)$</summary>
-  We can use `/empty` to convert the list `alcohol_shelf = [admin, us]` to `alcohol_shelf = admin`.
+  <summary>Hint $4$)</summary>
+  {{ hint4 | markdownify }}
 </details>
+
+{% capture hint5 %}
+We can use `/empty` to convert the list `alcohol_shelf = [admin, us]` to `alcohol_shelf = admin`.
+{% endcapture %}
 
 <details>
-  <summary>Hint $6)$</summary>
-  We can use `/profile` to obtain our `alcohol_shelf` via `get_beverages` of our object. This just returns `self.alcohol_shelf` which has the value of `_all_instances[0]`, aka the flag.
+  <summary>Hint $5$)</summary>
+  {{ hint5 | markdownify }}
 </details>
 
+{% capture hint6 %}
+We can use `/profile` to obtain our `alcohol_shelf` via `get_beverages` of our object. This just returns `self.alcohol_shelf` which has the value of `_all_instances[0]`, aka the flag.
+{% endcapture %}
+
+<details>
+  <summary>Hint $6$)</summary>
+  {{ hint6 | markdownify }}
+</details>
 ## Step by step guide
 
 This section includey the final solution and a step by step visualization with [python tutor](HTTPs://pythontutor.com/python-compiler.html#). Feel free to go there and play with the tool
