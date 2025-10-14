@@ -6,11 +6,11 @@ date: 2025-10-06
 categories: blog
 ---
 
-> This Web Application was made to adapt to polish (drinking) culture :3
+> This Web Application was made to adapt to Polish (drinking) culture :3
 
 # Setup
 
-We have a frontend serving some `Jinja` templates that has some HTTP endpoints we can use to ~~get hella drunk~~ understand what the polish bar has to offer. All endpoint endpoints somewhat modify the `BeverageConfig` of our account. There is an admin account that has the flag:
+We have a frontend serving some `Jinja` templates that has some HTTP endpoints we can use to ~~get hella drunk~~ understand what the Polish bar has to offer. All endpoints somewhat modify the `BeverageConfig` of our account. There is an admin account that has the flag:
 
 ```py
 app = FastAPI()
@@ -114,7 +114,7 @@ async def update_config(request: Request):
     return RedirectResponse(url="/register", status_code=303)
 ```
 
-The HTTP endpoint to `register` is pretty important to obtain a session. Afterwards, we have the endpoints `config`,`empty` and `beverage` which I mapped to the methods below in the class `BeverageConfig` and `PreferenceConfig`. Look at the jupyter notebook in [the playground](#python-refresher-and-playground) to see the classes `BeverageConfig` etc. 
+The `/register` HTTP endpoint is important for obtaining a session. Afterwards, we have the `/config`, `/empty`, and `/beverage` endpoints, which map to the methods below in the `BeverageConfig` and `PreferenceConfig` classes. Look at the Jupyter Notebook in [the playground](#python-refresher-and-playground) to see the `BeverageConfig` class and others.
 
 ```py
     def get_property(self, val):
@@ -147,17 +147,17 @@ The HTTP endpoint to `register` is pretty important to obtain a session. Afterwa
 
 ```
 
-Let's disect what each method does:
+Let's dissect what each method does:
 
-- `update_property` retrieves the attribute `val` and sets the attribute `key` to its value
-- `empty_alcohol_shelf` will shorten the list `self.alcohol_shelf._alcohol_shelf` to its first value. If they does not exists, it will reduce the list `self.alcohol_shelf` to its first value.
+- `update_property` retrieves the attribute `val` and sets the attribute `key` to its value.
+- `empty_alcohol_shelf` will shorten the list `self.alcohol_shelf._alcohol_shelf` to its first value. If it does not exist, it will reduce the list `self.alcohol_shelf` to its first value.
 - `add_beverage` adds an item to the list `self.alcohol_shelf._alcohol_shelf`.
 
-If you are not familiar with the special methods `getattr`, `setattr` and `hasattr` --- I got you covered in the next section!
+If you are not familiar with the special methods `getattr`, `setattr`, and `hasattr`---I've got you covered in the next section!
 
 ## Python refresher and playground
 
-Below is a small playground I created if you want to try it on your own first. At the end, I included the challenge classes such that you can play around to try to solve this ctf on your own. You can use the [hints](#intuition).
+Below is a small playground I created if you want to try it on your own first. At the end, I included the challenge classes so that you can play around and try to solve this CTF on your own. You can use the [hints](#intuition).
 
 <iframe
   src="https://bluuuk.github.io/blog-jupyterlite/lab/index.html?path=/openECSC-playground.ipynb"
@@ -167,29 +167,27 @@ Below is a small playground I created if you want to try it on your own first. A
   tabindex="-1">
 </iframe>
 
+
 <script>
-const origScrollTo = window.scrollTo;
+  document.addEventListener("DOMContentLoaded", function() {
+    const ifr = document.getElementById("jupyterlite");
 
-window.scrollTo = function(x, y) {
-  // Optionally, we can filter / deny certain calls,
-  // e.g. if y isn't zero, or only allow calls from certain contexts.
-  // For now, do nothing (suppress)
-};
-
-// After iframe has loaded (or after appropriate delay), restore it:
-iframe.addEventListener("load", () => {
-  setTimeout(() => {
-    window.scrollTo = origScrollTo;
-  }, 200);
-});
+    ifr.addEventListener("load", function() {
+      // Give it a little delay (to let any internal scroll/focus happen)
+      setTimeout(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+        // Or you could use `behavior: 'smooth'` if you want it more gradual
+      }, 50);
+    });
+  });
 </script>
 
 ## Intuition
 
-Below, I collected my first sight intuitions. Do not scroll to far, otherwise you will see the solution. Click as you like:
+Below, I've collected my initial intuitions. Do not scroll too far, otherwise you will see the solution. Click as you like:
 
 {% capture hint1 %}
-Overall, the class `PreferenceConfig` and thus `BeverageConfig` due to inheritance have one interesting class variable `_all_instances`. The `__init__` for `PreferenceConfig` appends every newly created object to that class as long it is inherited from `PreferenceConfig`.
+Overall, the `PreferenceConfig` class, and thus `BeverageConfig` due to inheritance, have one interesting class variable: `_all_instances`. The `__init__` for `PreferenceConfig` appends every newly created object to that class as long as it inherits from `PreferenceConfig`.
 {% endcapture %}
 
 <details>
@@ -198,7 +196,7 @@ Overall, the class `PreferenceConfig` and thus `BeverageConfig` due to inheritan
 </details>
 
 {% capture hint2 %}
-The first element of `_all_instances` is always **admin** `BeverageConfig`. Therefore, if we register to create our own session, our object will be `_all_instances[1]`.
+The first element of `_all_instances` is always the **admin**'s `BeverageConfig`. Therefore, if we register to create our own session, our object will be `_all_instances[1]`.
 {% endcapture %}
 
 <details>
@@ -216,7 +214,7 @@ We can use `/config` to essentially do `setattr(self,"{key}",get_property(self,"
 </details>
 
 {% capture hint4 %}
-With Hint $4$ in mind, we set `alcohol_shelf` to `_all_instances`. Now, `alcohol_shelf` is not of type `AlcoholShelf` anymore — it's merely just a list.
+With Hint 4 in mind, we set `alcohol_shelf` to `_all_instances`. Now, `alcohol_shelf` is not of type `AlcoholShelf` anymore—it's merely a list.
 {% endcapture %}
 
 <details>
@@ -234,7 +232,7 @@ We can use `/empty` to convert the list `alcohol_shelf = [admin, us]` to `alcoho
 </details>
 
 {% capture hint6 %}
-We can use `/profile` to obtain our `alcohol_shelf` via `get_beverages` of our object. This just returns `self.alcohol_shelf` which has the value of `_all_instances[0]`, aka the flag.
+We can use `/profile` to obtain our `alcohol_shelf` via `get_beverages` of our object. This just returns `self.alcohol_shelf`, which has the value of `_all_instances[0]`, a.k.a. the flag.
 {% endcapture %}
 
 <details>
@@ -244,9 +242,9 @@ We can use `/profile` to obtain our `alcohol_shelf` via `get_beverages` of our o
 
 ## Step by step guide
 
-This section includey the final solution and a step by step visualization with [python tutor](HTTPs://pythontutor.com/python-compiler.html#). Feel free to go there and play with the tool
+This section includes the final solution and a step-by-step visualization with [Python Tutor](https://pythontutor.com/python-compiler.html#). Feel free to go there and play with the tool.
 
-The final solve is therefore:
+The final solution is therefore:
 
 ```py
 Solve = BeverageConfig(None)
@@ -265,13 +263,13 @@ Solve.get_config()
 
 ![Step 2](/assets/images/2025-10-06-openESEC-web-polish-bar/step2.png)
 
-### Use empty to shorten list to its first argument
+### Use empty to shorten the list to its first element
 
 ![Step 3](/assets/images/2025-10-06-openESEC-web-polish-bar/step3.png)
 
 ### Calling `get_config`
 
-The green arrow shows the last executed line whereas the red arrow is for the current one. 
+The green arrow shows the last executed line, whereas the red arrow is for the current one. 
 
 ![Step 4](/assets/images/2025-10-06-openESEC-web-polish-bar/step4.png)
 
@@ -281,7 +279,7 @@ The green arrow shows the last executed line whereas the red arrow is for the cu
 
 ## Final Solve
 
-We use an `Session` which automatically glues the cookie to subsequent HTTP requests once set.
+We use a `Session` which automatically attaches the cookie to subsequent HTTP requests once set.
 
 ```py
 import requests
@@ -294,7 +292,7 @@ session.post(f"{base}/empty")
 print(session.post(f"{base}/profile"))
 ```
 
-Executing our solve script gives us our well deserved flag :)
+Executing our solve script gives us our well-deserved flag. :)
 
 ```bash
 ❯ python solve.py | grep open
