@@ -12,7 +12,7 @@ toc_label: "Table of contents"
 
 # Setup
 
-We have a frontend serving some `Jinja` templates that has some http endpoints we can use to ~~get hella drunk~~ understand what the polish bar has to offer. All endpoint endpoints somewhat modify the `BeverageConfig` of our account. There is an admin account that has the flag:
+We have a frontend serving some `Jinja` templates that has some HTTP endpoints we can use to ~~get hella drunk~~ understand what the polish bar has to offer. All endpoint endpoints somewhat modify the `BeverageConfig` of our account. There is an admin account that has the flag:
 
 ```py
 app = FastAPI()
@@ -45,7 +45,7 @@ async def post_register(request: Request, username: str = Form(...), password: s
     sessions[new_session_id] = { 'username': username, 'password': password, 'config': BeverageConfig(None) }
 
     response = RedirectResponse(url="/profile", status_code=303)
-    response.set_cookie(key="session", value=new_session_id, httponly=True)
+    response.set_cookie(key="session", value=new_session_id, HTTPonly=True)
     return response
 
 
@@ -116,7 +116,7 @@ async def update_config(request: Request):
     return RedirectResponse(url="/register", status_code=303)
 ```
 
-The http endpoint to `register` is pretty important to obtain a session. Afterwards, we have the endpoints `config`,`empty` and `beverage` which I mapped to the methods below in the class `BeverageConfig` and `PreferenceConfig`. Look at the jupyter notebook in [the playground](#python-refresher-and-playground) to see the classes `BeverageConfig` etc. 
+The HTTP endpoint to `register` is pretty important to obtain a session. Afterwards, we have the endpoints `config`,`empty` and `beverage` which I mapped to the methods below in the class `BeverageConfig` and `PreferenceConfig`. Look at the jupyter notebook in [the playground](#python-refresher-and-playground) to see the classes `BeverageConfig` etc. 
 
 ```py
     def get_property(self, val):
@@ -170,7 +170,7 @@ Below is a small playground I created if you want to try it on your own first. A
 
 ## Intuition
 
-Below, I collected my first sight intuitions. Click as you like:
+Below, I collected my first sight intuitions. Do not scroll to far, otherwise you will see the solution. Click as you like:
 
 <details>
   <summary>Hint $1)$</summary>
@@ -204,22 +204,42 @@ Below, I collected my first sight intuitions. Click as you like:
 
 ## Step by step guide
 
+This section includey the final solution and a step by step visualization with [python tutor](HTTPs://pythontutor.com/python-compiler.html#). Feel free to go there and play with the tool
+
 The final solve is therefore:
 
 ```py
-B = BeverageConfig(None)
-B.update_property(
+Solve = BeverageConfig(None)
+Solve.update_property(
     "alcohol_shelf","_all_instances"
 )
-B.empty_alcohol_shelf()
-B.get_config()
+Solve.empty_alcohol_shelf()
+Solve.get_config()
 ```
 
-![alt text](image.png)
+### Create our own `BeverageConfig`
+
+![Step 1](/assets/images/2025-10-06-openESEC-web-polish-bar/step1.png)
+
+### Update the `alcohol_shelf` attribute
+
+![Step 2](/assets/images/2025-10-06-openESEC-web-polish-bar/step2.png)
+
+### Use empty to shorten list to its first argument
+
+![Step 3](/assets/images/2025-10-06-openESEC-web-polish-bar/step3.png)
+
+### Calling `get_config`
+
+![Step 4](/assets/images/2025-10-06-openESEC-web-polish-bar/step4.png)
+
+### `self.get_property('preferred_beverage')` points to the flag
+
+![Step 5](/assets/images/2025-10-06-openESEC-web-polish-bar/step5.png)
 
 ## Final Solve
 
-We use an `Session` which automatically glues cookie to subsequent http request once they set - here its the `session` cookie:
+We use an `Session` which automatically glues the cookie to subsequent HTTP requests once set.
 
 ```py
 import requests
