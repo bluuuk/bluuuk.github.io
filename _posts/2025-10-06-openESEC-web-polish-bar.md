@@ -4,8 +4,6 @@ layout: single
 classes: wide
 date: 2025-10-06
 categories: blog
-toc: true
-toc_label: "Table of contents"
 ---
 
 > This Web Application was made to adapt to polish (drinking) culture :3
@@ -164,7 +162,8 @@ Below is a small playground I created if you want to try it on your own first. A
 <iframe
   src="https://bluuuk.github.io/blog-jupyterlite/lab/index.html?path=/openECSC-playground.ipynb"
   width="100%"
-  height="1000px">
+  height="1000px"
+  tabindex="-1">
 </iframe>
 
 ## Intuition
