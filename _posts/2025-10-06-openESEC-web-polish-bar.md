@@ -164,25 +164,19 @@ Below is a small playground I created if you want to try it on your own first. A
   id="jupyterlite"
   width="100%"
   height="1000px"
+  style="position:absolute; top:-9999px; visibility:hidden;"
   tabindex="-1">
 </iframe>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const ifr = document.getElementById("jupyterlite");
-  const scrollPos = { x: window.scrollX, y: window.scrollY };
-
-  ifr.addEventListener("load", () => {
-    // small delay to let internal focus/scroll run
-    setTimeout(() => {
-      // restore parent scroll
-      window.scrollTo(scrollPos.x, scrollPos.y);
-      // reveal iframe
-      ifr.style.visibility = "visible";
-      // shift focus away
-      document.body.focus();
-    }, 50);
-  });
+const ifr = document.getElementById("jupyterlite");
+ifr.addEventListener("load", () => {
+  // After load & internal focus likely done
+  setTimeout(() => {
+    ifr.style.position = "";
+    ifr.style.top = "";
+    ifr.style.visibility = "visible";
+  }, 100);
 });
 </script>
 
@@ -272,6 +266,8 @@ Solve.get_config()
 ![Step 3](/assets/images/2025-10-06-openESEC-web-polish-bar/step3.png)
 
 ### Calling `get_config`
+
+The green arrow shows the last executed line whereas the red arrow is for the current one. 
 
 ![Step 4](/assets/images/2025-10-06-openESEC-web-polish-bar/step4.png)
 
