@@ -8,7 +8,13 @@ categories: blog
 
 > This Web Application was made to adapt to Polish (drinking) culture :3
 
-# Setup
+In this challenge, we're presented with a Python-based web application. The goal is to find a way to access the admin's session and retrieve the flag. The application allows users to register, log in, and manage their beverage preferences. The vulnerability lies in how the application handles object properties, allowing for a clever manipulation of the session data to impersonate the admin. This write-up will walk through the process of discovering and exploiting this vulnerability.
+
+# The Scene
+
+Upon registering and logging in, we're greeted with a profile page where we can manage our `beverage configuration`. We can add new beverages to our `alcohol_shelf`, update our configuration, or empty the shelf. The application seems simple on the surface, but the way it handles these configurations under the hood is where things get interesting.
+
+## Frontend
 
 We have a frontend serving some `Jinja` templates that has some HTTP endpoints we can use to ~~get hella drunk~~ understand what the Polish bar has to offer. All endpoints somewhat modify the `BeverageConfig` of our account. There is an admin account that has the flag:
 
@@ -114,18 +120,45 @@ async def update_config(request: Request):
     return RedirectResponse(url="/register", status_code=303)
 ```
 
-The `/register` HTTP endpoint is important for obtaining a session. Afterwards, we have the `/config`, `/empty`, and `/beverage` endpoints, which map to the methods below in the `BeverageConfig` and `PreferenceConfig` classes. Look at the Jupyter Notebook in [the playground](#python-refresher-and-playground) to see the `BeverageConfig` class and others.
+The `/register` HTTP endpoint is important for obtaining a session. Afterwards, we have the `/config`, `/empty`, and `/beverage` endpoints, which map to methods in the `BeverageConfig` class.
+
+
+## Backend
+
+Here, we map the http endpoint to the methods of the class `BeverageConfig`. It's parent class is `PreferenceConfig` which has the class variable `_all_instances`. It's a list that stores every object created from a class inheriting `PreferenceConfig`. If you are unfamiliar with those, check out the [playground](#the-playground). 
 
 ```py
-    def get_property(self, val):
-        try:
-            if hasattr(self.alcohol_shelf, val):
-                return getattr(self.alcohol_shelf, val)
+class PreferenceConfig(AlcoholShelf):
+    _all_instances = []
+    
+    def __init__(self, preferred_beverage: str):
+        super().__init__()
+        self.preferred_beverage = preferred_beverage
+        self.alcohol_shelf = AlcoholShelf()
+        self.blood_alcohol_level = 1.0
+        BeverageConfig._all_instances.append(self)
 
-            return getattr(self, val)
-        except:
-            return
+    ...
 
+class BeverageConfig(PreferenceConfig):
+
+    def __init__(self, preferred_beverage: str):
+        super().__init__(preferred_beverage)
+        self.preferred_beverage = preferred_beverage
+        self.blood_alcohol_level = 1.0
+```
+
+The endpoint `\beverage` maps to the method below:
+
+```py
+    # /beverage
+    def add_beverage(self, beverage: str):
+        self.alcohol_shelf._alcohol_shelf.append(beverage)
+```
+
+The next piece of the puzzle was the `/config` endpoint, which calls the `update_property` method.
+
+```py
     # /config
     def update_property(self, key: str, val: str):
         attr = self.get_property(val)
@@ -133,31 +166,22 @@ The `/register` HTTP endpoint is important for obtaining a session. Afterwards, 
             setattr(self, key, attr)
             return
         return { 'error': 'property doesn\'t exist!' }
-    
-    # /empty
+```
+
+The `empty_alcohol_shelf` of the class `PreferenceConfig` reduces a list to its first element or unwraps a list into its first element.
+
+```py
+    # /empty 
     def empty_alcohol_shelf(self):
         if hasattr(self.alcohol_shelf, "_alcohol_shelf"):
             self.alcohol_shelf._alcohol_shelf = [self.alcohol_shelf._alcohol_shelf[0]]
         else:
             self.alcohol_shelf = self.alcohol_shelf[0]
-
-    # /beverage
-    def add_beverage(self, beverage: str):
-        self.alcohol_shelf._alcohol_shelf.append(beverage)
-
 ```
 
-Let's dissect what each method does:
+# The Detective
 
-- `update_property` retrieves the attribute `val` and sets the attribute `key` to its value.
-- `empty_alcohol_shelf` will shorten the list `self.alcohol_shelf._alcohol_shelf` to its first value. If it does not exist, it will reduce the list `self.alcohol_shelf` to its first value.
-- `add_beverage` adds an item to the list `self.alcohol_shelf._alcohol_shelf`.
-
-If you are not familiar with the special methods `getattr`, `setattr`, and `hasattr`---I've got you covered in the next section!
-
-## Python refresher and playground
-
-Below is a small playground I created if you want to try it on your own first. At the end, I included the challenge classes so that you can play around and try to solve this CTF on your own. You can use the [hints](#intuition).
+Below is a small playground I created if you want to try it on your own first. If you are not familiar with the special methods `getattr`, `setattr`, and `hasattr`---I've got you covered! At the end, I included the challenge classes so that you can play around and try to solve this CTF on your own. You can use the [hints](#intuition).
 
 <iframe
   src="https://bluuuk.github.io/blog-jupyterlite/lab/index.html?path=/openECSC-playground.ipynb"
@@ -167,27 +191,12 @@ Below is a small playground I created if you want to try it on your own first. A
   tabindex="-1">
 </iframe>
 
+## The Evidence
 
-<script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const ifr = document.getElementById("jupyterlite");
-
-    ifr.addEventListener("load", function() {
-      // Give it a little delay (to let any internal scroll/focus happen)
-      setTimeout(() => {
-        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-        // Or you could use `behavior: 'smooth'` if you want it more gradual
-      }, 50);
-    });
-  });
-</script>
-
-## Intuition
-
-Below, I've collected my initial intuitions. Do not scroll too far, otherwise you will see the solution. Click as you like:
+For those who want to find the solution on their own, here's a trail of hints that follows the logic of the exploit. Do not scroll too far, otherwise you will see the solution. Click as you like:
 
 {% capture hint1 %}
-Overall, the `PreferenceConfig` class, and thus `BeverageConfig` due to inheritance, have one interesting class variable: `_all_instances`. The `__init__` for `PreferenceConfig` appends every newly created object to that class as long as it inherits from `PreferenceConfig`.
+The key vulnerability lies in a class variable that is shared across all instances of the `BeverageConfig` object. Can you find it in the `PreferenceConfig` parent class?
 {% endcapture %}
 
 <details>
@@ -196,7 +205,7 @@ Overall, the `PreferenceConfig` class, and thus `BeverageConfig` due to inherita
 </details>
 
 {% capture hint2 %}
-The first element of `_all_instances` is always the **admin**'s `BeverageConfig`. Therefore, if we register to create our own session, our object will be `_all_instances[1]`.
+The `_all_instances` list contains every user's object, including the admin's. The admin's object is always the first element. How can we get a reference to this list?
 {% endcapture %}
 
 <details>
@@ -205,7 +214,7 @@ The first element of `_all_instances` is always the **admin**'s `BeverageConfig`
 </details>
 
 {% capture hint3 %}
-We can use `/config` to essentially do `setattr(self,"{key}",get_property(self,"{value}"))` where we control `{key}` and `{value}`.
+The `/config` endpoint lets us call `update_property`. This method allows us to set an attribute on our object to the value of another attribute. This is our ticket to accessing `_all_instances`.
 {% endcapture %}
 
 <details>
@@ -214,7 +223,7 @@ We can use `/config` to essentially do `setattr(self,"{key}",get_property(self,"
 </details>
 
 {% capture hint4 %}
-With Hint 4 in mind, we set `alcohol_shelf` to `_all_instances`. Now, `alcohol_shelf` is not of type `AlcoholShelf` anymore—it's merely a list.
+With the previous hint in mind, we can set our `alcohol_shelf` to point to `_all_instances`. Now, `alcohol_shelf` is no longer an `AlcoholShelf` object—it's a list containing both the admin's and our objects.
 {% endcapture %}
 
 <details>
@@ -223,7 +232,7 @@ With Hint 4 in mind, we set `alcohol_shelf` to `_all_instances`. Now, `alcohol_s
 </details>
 
 {% capture hint5 %}
-We can use `/empty` to convert the list `alcohol_shelf = [admin, us]` to `alcohol_shelf = admin`.
+Our `alcohol_shelf` is now a list: `[admin_object, our_object]`. The `/empty` endpoint is designed to reduce the shelf to its first element. What happens when we call it now?
 {% endcapture %}
 
 <details>
@@ -232,7 +241,7 @@ We can use `/empty` to convert the list `alcohol_shelf = [admin, us]` to `alcoho
 </details>
 
 {% capture hint6 %}
-We can use `/profile` to obtain our `alcohol_shelf` via `get_beverages` of our object. This just returns `self.alcohol_shelf`, which has the value of `_all_instances[0]`, a.k.a. the flag.
+After calling `/empty`, our `alcohol_shelf` now points directly to the admin's object. Visiting our profile page should now reveal the admin's data, including the flag.
 {% endcapture %}
 
 <details>
@@ -240,11 +249,18 @@ We can use `/profile` to obtain our `alcohol_shelf` via `get_beverages` of our o
   {{ hint6 | markdownify }}
 </details>
 
-## Step by step guide
+# The Weapon
 
-This section includes the final solution and a step-by-step visualization with [Python Tutor](https://pythontutor.com/python-compiler.html#). Feel free to go there and play with the tool.
+With the all information on the table, the attack plan became clear:
 
-The final solution is therefore:
+1.  Use `update_property` to set our object's `alcohol_shelf` attribute to point to the `_all_instances` list.
+2.  Now our `alcohol_shelf` is no longer an `AlcoholShelf` object, but a list containing `[admin_object, our_object]`.
+3.  Call the `/empty` endpoint, which triggers `empty_alcohol_shelf`. This method is designed to reduce the shelf to its first element. In our case, `AlcoholShelf = admin_object` is the final result.
+4.  Finally, when we visit our `/profile`, the server will try to display our `alcohol_shelf`, which now points directly to the admin's object, revealing the flag.
+
+This is a classic prototype pollution-style vulnerability. We can set any attribute (`key`) on our `BeverageConfig` object to the value of any other attribute (`val`) we can access. This was the perfect tool to create a reference to the `_all_instances` list on our own object.
+
+This section includes the final solution and a step-by-step visualization with [Python Tutor](https://pythontutor.com/python-compiler.html#). Feel free to go there and play with the tool. The final solution is therefore:
 
 ```py
 Solve = BeverageConfig(None)
@@ -255,29 +271,29 @@ Solve.empty_alcohol_shelf()
 Solve.get_config()
 ```
 
-### Create our own `BeverageConfig`
+## Create our own `BeverageConfig`
 
 ![Step 1](/assets/images/2025-10-06-openESEC-web-polish-bar/step1.png)
 
-### Update the `alcohol_shelf` attribute
+## Update the `alcohol_shelf` attribute
 
 ![Step 2](/assets/images/2025-10-06-openESEC-web-polish-bar/step2.png)
 
-### Use empty to shorten the list to its first element
+## Use empty to shorten the list to its first element
 
 ![Step 3](/assets/images/2025-10-06-openESEC-web-polish-bar/step3.png)
 
-### Calling `get_config`
+## Calling `get_config`
 
 The green arrow shows the last executed line, whereas the red arrow is for the current one. 
 
 ![Step 4](/assets/images/2025-10-06-openESEC-web-polish-bar/step4.png)
 
-### `self.get_property('preferred_beverage')` points to the flag
+## `self.get_property('preferred_beverage')` points to the flag
 
 ![Step 5](/assets/images/2025-10-06-openESEC-web-polish-bar/step5.png)
 
-## Final Solve
+# The Verdict
 
 We use a `Session` which automatically attaches the cookie to subsequent HTTP requests once set.
 
@@ -298,4 +314,4 @@ Executing our solve script gives us our well-deserved flag. :)
 ❯ python solve.py | grep open
                     openECSC{gggrrrrrrr_ppyytthhonnn_8c719052fa04}
                                value="openECSC{gggrrrrrrr_ppyytthhonnn_8c719052fa04}">
-````
+```
