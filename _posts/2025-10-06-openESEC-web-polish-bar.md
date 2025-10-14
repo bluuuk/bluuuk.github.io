@@ -176,7 +176,7 @@ Overall, the class `PreferenceConfig` and thus `BeverageConfig` due to inheritan
 {% endcapture %}
 
 <details>
-  <summary>Hint $1$)</summary>
+  <summary>Hint 1)</summary>
   {{ hint1 | markdownify }}
 </details>
 
@@ -185,7 +185,7 @@ The first element of `_all_instances` is always **admin** `BeverageConfig`. Ther
 {% endcapture %}
 
 <details>
-  <summary>Hint $2$)</summary>
+  <summary>Hint 2)</summary>
   {{ hint2 | markdownify }}
 </details>
 
@@ -194,7 +194,7 @@ We can use `/config` to essentially do `setattr(self,"{key}",get_property(self,"
 {% endcapture %}
 
 <details>
-  <summary>Hint $3$)</summary>
+  <summary>Hint 3)</summary>
   {{ hint3 | markdownify }}
 </details>
 
@@ -203,7 +203,7 @@ With Hint $4$ in mind, we set `alcohol_shelf` to `_all_instances`. Now, `alcohol
 {% endcapture %}
 
 <details>
-  <summary>Hint $4$)</summary>
+  <summary>Hint 4)</summary>
   {{ hint4 | markdownify }}
 </details>
 
@@ -212,7 +212,7 @@ We can use `/empty` to convert the list `alcohol_shelf = [admin, us]` to `alcoho
 {% endcapture %}
 
 <details>
-  <summary>Hint $5$)</summary>
+  <summary>Hint 5)</summary>
   {{ hint5 | markdownify }}
 </details>
 
@@ -221,9 +221,10 @@ We can use `/profile` to obtain our `alcohol_shelf` via `get_beverages` of our o
 {% endcapture %}
 
 <details>
-  <summary>Hint $6$)</summary>
+  <summary>Hint 6)</summary>
   {{ hint6 | markdownify }}
 </details>
+
 ## Step by step guide
 
 This section includey the final solution and a step by step visualization with [python tutor](HTTPs://pythontutor.com/python-compiler.html#). Feel free to go there and play with the tool
