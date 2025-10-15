@@ -10,9 +10,7 @@ toc_label: "Table of contents"
 
 CTF challenges concerned about untrusted MCP servers.
 
-# Ai-clippy
-
-Description: `You find a space station Terminal that seems abandoned.`
+> You find a space station Terminal that seems abandoned.
 
 # What's in the source code
 
