@@ -3,6 +3,9 @@ title: "UIUCTF 2025 - misc/Ai-clippy"
 layout: single
 date: 2025-08-14
 categories: blog
+classes: wide
+toc: true
+toc_label: "Table of contents"
 ---
 
 CTF challenges concerned about untrusted MCP servers.

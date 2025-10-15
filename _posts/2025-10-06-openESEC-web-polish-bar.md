@@ -10,7 +10,7 @@ categories: blog
 
 In this challenge, we're presented with a Python-based web application. The goal is to find a way to access the admin's session and retrieve the flag. The application allows users to register, log in, and manage their beverage preferences. The vulnerability lies in how the application handles object properties, allowing for a clever manipulation of the session data to impersonate the admin. This write-up will walk through the process of discovering and exploiting this vulnerability.
 
-# The Scene
+# 🍺The Bar🍺
 
 Upon registering and logging in, we're greeted with a profile page where we can manage our `beverage configuration`. We can add new beverages to our `alcohol_shelf`, update our configuration, or empty the shelf. The application seems simple on the surface, but the way it handles these configurations under the hood is where things get interesting.
 
@@ -179,7 +179,7 @@ The `empty_alcohol_shelf` of the class `PreferenceConfig` reduces a list to its 
             self.alcohol_shelf = self.alcohol_shelf[0]
 ```
 
-# The Detective
+# 🍺My drunk friends🍺
 
 Below is a small playground I created if you want to try it on your own first. If you are not familiar with the special methods `getattr`, `setattr`, and `hasattr`---I've got you covered! At the end, I included the challenge classes so that you can play around and try to solve this CTF on your own. You can use the [hints](#the-evidence).
 
@@ -191,7 +191,7 @@ Below is a small playground I created if you want to try it on your own first. I
   tabindex="-1">
 </iframe>
 
-## The Evidence
+# 🍺Talking to the bouncer🍺
 
 For those who want to find the solution on their own, here's a trail of hints that follows the logic of the exploit. Do not scroll too far, otherwise you will see the solution. Click as you like:
 
@@ -249,7 +249,8 @@ After calling `/empty`, our `alcohol_shelf` now points directly to the admin's o
   {{ hint6 | markdownify }}
 </details>
 
-# The Weapon
+
+# 🍺Chugging it all🍺
 
 With the all information on the table, the attack plan became clear:
 
@@ -293,7 +294,7 @@ The green arrow shows the last executed line, whereas the red arrow is for the c
 
 ![Step 5](/assets/images/2025-10-06-openESEC-web-polish-bar/step5.png)
 
-# The Verdict
+# 🍺The Hangover🍺
 
 We use a `Session` which automatically attaches the cookie to subsequent HTTP requests once set.
 

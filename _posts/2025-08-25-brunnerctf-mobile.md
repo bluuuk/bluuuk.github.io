@@ -4,6 +4,8 @@ layout: single
 date: 2025-08-25
 categories: blog
 classes: wide
+toc: true
+toc_label: "Table of contents"
 ---
 
 In this CTF, I focussed on the three provided mobile challenges:
